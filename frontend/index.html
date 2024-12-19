@@ -1,39 +1,611 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Travel Planner</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAFARNAMA | The Editorial Indian Travel Chronicle & Recommendation Engine</title>
+  
+  <!-- Google Fonts: Cormorant Garamond, Cinzel, and Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
-    <h1>Plan Your Trip</h1>
-    <form id="travelForm">
-        <label for="startLocation">Start Location:</label>
-        <input type="text" id="startLocation" placeholder="Enter your start location" required>
-        <br><br>
+<body class="season-monsoon">
+  <!-- Dynamic Atmospheric Canvas (Rain, Snow, Leaves, Twilight Dust) -->
+  <canvas id="weatherCanvas"></canvas>
+  <div class="vignette-overlay"></div>
+  <div class="grain-overlay"></div>
 
-        <label for="endLocation">End Location:</label>
-        <input type="text" id="endLocation" placeholder="Enter destination" required>
-        <br><br>
+  <!-- Main Navigation Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <span class="brand-sub">AN INDIAN EXPEDITION CHRONICLE</span>
+        <h1 class="brand-title">SAFARNAMA <span class="brand-accent">सफ़रनामा</span></h1>
+      </div>
 
-        <label for="startDate">Start Date:</label>
-        <input type="date" id="startDate" required>
-        <br><br>
+      <!-- Live Dynamic Season Switcher -->
+      <div class="season-hud">
+        <span class="hud-label"><i class="fa-solid fa-cloud-sun"></i> CLIMATE DYNAMICS:</span>
+        <div class="season-pill-group">
+          <button class="season-btn active" data-season="monsoon" title="Sawan & Ghat Rains">
+            <i class="fa-solid fa-cloud-showers-heavy"></i> <span>Monsoon</span>
+          </button>
+          <button class="season-btn" data-season="winter" title="Barfani Chills & Snow">
+            <i class="fa-solid fa-snowflake"></i> <span>Winter</span>
+          </button>
+          <button class="season-btn" data-season="autumn" title="Sharad & Clear Skies">
+            <i class="fa-solid fa-leaf"></i> <span>Autumn</span>
+          </button>
+          <button class="season-btn" data-season="summer" title="Grishma Hill Escapes">
+            <i class="fa-solid fa-sun"></i> <span>Summer</span>
+          </button>
+        </div>
+      </div>
 
-        <label for="endDate">End Date:</label>
-        <input type="date" id="endDate" required>
-        <br><br>
+      <!-- Utility Actions: Soundscape & AI Key -->
+      <div class="header-actions">
+        <button id="soundscapeBtn" class="action-btn" title="Toggle Ambient Audio Experience">
+          <i class="fa-solid fa-volume-xmark" id="soundIcon"></i>
+          <span class="btn-text">Audio Vibe</span>
+        </button>
+        <button id="apiKeyModalBtn" class="action-btn" title="Configure Gemini AI Key">
+          <i class="fa-solid fa-key"></i>
+          <span class="btn-text">AI Key</span>
+        </button>
+      </div>
+    </div>
+  </header>
 
-        <label for="days">Number of Days:</label>
-        <input type="number" id="days" placeholder="No. of days" required>
-        <br><br>
+  <!-- Hero Editorial Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-tagline">
+        <span class="hero-kicker">CURATED STRICTLY FOR BHARAT</span>
+        <h2 class="hero-headline">Highways, Havelis & High Passes.</h2>
+        <p class="hero-subtext">
+          Traverse misty Himalayan ghats, timeless desert forts, and whispering coastal backwaters. 
+          Real Indian routes, legendary roadside dhabas, Vande Bharat transit, and climate-reactive itineraries.
+        </p>
+      </div>
 
-        <button type="submit">Generate Plan</button>
-    </form>
+      <!-- Quick Route Showcase Badges -->
+      <div class="corridor-scroller" id="corridorBadges">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </section>
 
-    <div id="output"></div>
+  <!-- Multi-Level Filter Dashboard -->
+  <section class="filter-dashboard-container">
+    <div class="filter-dashboard">
+      <div class="filter-header">
+        <div class="filter-title-wrap">
+          <span class="section-indicator">LEVEL 01 TO 07</span>
+          <h3 class="filter-title">Curate Your Indian Expedition</h3>
+        </div>
+        <div class="quick-presets">
+          <span class="preset-label">Quick Vibe:</span>
+          <button class="preset-chip active" data-preset="monsoon-ghats">🌧️ Monsoon Ghats</button>
+          <button class="preset-chip" data-preset="winter-himalayas">❄️ Himalayan Snow</button>
+          <button class="preset-chip" data-preset="royal-rajasthan">🏰 Royal Forts</button>
+          <button class="preset-chip" data-preset="spiritual-kashi">🪔 Sacred Ghats</button>
+          <button class="preset-chip" data-preset="coastal-goa">🌊 Konkan Highway</button>
+        </div>
+      </div>
 
-    <script src="script.js"></script>
+      <!-- Filter Controls Grid -->
+      <div class="filters-grid">
+        <!-- Origin City -->
+        <div class="filter-item">
+          <label><i class="fa-solid fa-location-dot"></i> Starting Origin</label>
+          <select id="originSelect" class="styled-select">
+            <option value="Delhi">Delhi NCR (Capital Corridor)</option>
+            <option value="Mumbai">Mumbai (Western Gateway)</option>
+            <option value="Bengaluru">Bengaluru (Southern Tech Hub)</option>
+            <option value="Chandigarh">Chandigarh (Foothills City)</option>
+            <option value="Kolkata">Kolkata (Eastern Cultural Hub)</option>
+            <option value="Chennai">Chennai (Coromandel Coast)</option>
+            <option value="Hyderabad">Hyderabad (Deccan Capital)</option>
+            <option value="Kochi">Kochi (Spice Coast)</option>
+            <option value="Jaipur">Jaipur (Pink City)</option>
+            <option value="Guwahati">Guwahati (Gateway to North East)</option>
+          </select>
+        </div>
+
+        <!-- Destination Corridor -->
+        <div class="filter-item">
+          <label><i class="fa-solid fa-map-location-dot"></i> Target Corridor / Destination</label>
+          <select id="destinationSelect" class="styled-select">
+            <!-- Populated via API -->
+          </select>
+        </div>
+
+        <!-- Travel Persona / Group -->
+        <div class="filter-item">
+          <label><i class="fa-solid fa-users"></i> Travel Persona</label>
+          <select id="groupSelect" class="styled-select">
+            <option value="couple">💑 Romantic Couple / Honeymoon</option>
+            <option value="family_elders">👨‍👩‍👧‍👦 Family with Elders & Kids (Gentle Pace)</option>
+            <option value="solo">🚶 Solo Wanderer / Backpacker</option>
+            <option value="friends">🎒 College Gang / Friends</option>
+          </select>
+        </div>
+
+        <!-- Dietary Preference -->
+        <div class="filter-item">
+          <label><i class="fa-solid fa-utensils"></i> Dietary Preference</label>
+          <select id="dietSelect" class="styled-select">
+            <option value="all">🍽️ All Regional Delicacies</option>
+            <option value="pure_veg">🌱 Strictly Pure Vegetarian</option>
+            <option value="jain">🪷 Jain Friendly (No Root Veg / Onion)</option>
+            <option value="non_veg_local">🍗 Regional Non-Veg Specialists</option>
+            <option value="street_food">🍛 Highway Dhaba & Street Food</option>
+          </select>
+        </div>
+
+        <!-- Primary Transport Mode -->
+        <div class="filter-item">
+          <label><i class="fa-solid fa-car-side"></i> Preferred Transit</label>
+          <select id="transportSelect" class="styled-select">
+            <option value="road">🚗 Scenic Road Trip (NH Highways)</option>
+            <option value="train_vande_bharat">🚄 Vande Bharat / Superfast Express</option>
+            <option value="flight">✈️ Flight + Mountain / Coastal Cab</option>
+          </select>
+        </div>
+
+        <!-- Duration & Pace Slider -->
+        <div class="filter-item duration-item">
+          <div class="slider-label-row">
+            <label><i class="fa-solid fa-calendar-days"></i> Duration: <span id="durationValue" class="highlight-val">4 Days</span></label>
+            <span id="paceBadge" class="mini-badge">Balanced</span>
+          </div>
+          <input type="range" id="durationSlider" min="2" max="10" value="4" class="styled-range">
+        </div>
+      </div>
+
+      <!-- Action Button Row -->
+      <div class="filter-action-row">
+        <div class="filter-stats" id="activeFilterSummary">
+          <span><i class="fa-solid fa-compass"></i> Ready to explore: <strong>Delhi &rarr; Manali</strong></span>
+        </div>
+        <button id="generateBtn" class="generate-btn">
+          <span class="btn-sparkle"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+          <span class="btn-text">Generate Indian Expedition</span>
+          <span class="btn-subtext">Instant Itinerary & ₹ Cost Model</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Showcase -->
+  <main class="content-container" id="resultsContainer">
+    <!-- Loading State Placeholder -->
+    <div id="loadingState" class="loading-state hidden">
+      <div class="spinner-pot">
+        <i class="fa-solid fa-compass fa-spin"></i>
+      </div>
+      <h3 class="loading-title">Charting Your Desi Journey...</h3>
+      <p class="loading-subtitle">Mapping highway dhabas, Vande Bharat connections, seasonal advisories, and authentic thalis.</p>
+    </div>
+
+    <!-- Results Section (Visible on Load) -->
+    <div id="resultsContent" class="results-content">
+      
+      <!-- Destination Banner Card -->
+      <div class="dest-banner-card" id="destBanner">
+        <div class="dest-banner-media">
+          <img id="destCoverImage" src="" alt="Destination Cover" class="dest-img">
+          <div class="dest-overlay-gradient"></div>
+          <div class="dest-badge-strip">
+            <span class="state-pill" id="destState">Himachal Pradesh</span>
+            <span class="highway-pill" id="destHighway"><i class="fa-solid fa-road"></i> NH44 & NH3</span>
+            <span class="season-indicator-pill" id="destSeasonBadge"><i class="fa-solid fa-cloud"></i> Monsoon</span>
+          </div>
+        </div>
+        <div class="dest-banner-body">
+          <h2 class="dest-title" id="destName">Manali & Solang Valley</h2>
+          <p class="dest-tagline" id="destTagline">Roaring Beas River, Pine Forests & Snowbound Passes</p>
+          
+          <div class="dest-tags-row" id="destVibeTags">
+            <!-- Vibe tags rendered dynamically -->
+          </div>
+
+          <!-- AI Story & Narrative Box -->
+          <div class="editorial-story-box">
+            <div class="editorial-header">
+              <span class="editorial-label"><i class="fa-solid fa-feather-pointed"></i> THE EXPEDITION NARRATIVE</span>
+              <span class="curation-source" id="aiSourceBadge"><i class="fa-solid fa-brain"></i> Curated Story</span>
+            </div>
+            <p class="editorial-text" id="aiStoryText">
+              Embark from the bustling plains and climb towards misty pine heights.
+            </p>
+            <div class="insider-tips-box" id="aiTipsContainer">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trained Deep Neural Network Route Weather Simulator Card -->
+      <div class="module-card ml-weather-simulator-card" id="mlSimulatorModule">
+        <div class="module-header">
+          <div>
+            <span class="module-kicker"><i class="fa-solid fa-brain"></i> ON-DEVICE DEEP LEARNING (NO API KEYS / LLM)</span>
+            <h3 class="module-title">Highway Route Weather & Microclimate Simulator</h3>
+          </div>
+          <div class="ml-badge-group">
+            <button id="detectLocationBtn" class="action-btn" title="Detect your local weather and couple it to the route">
+              <i class="fa-solid fa-location-crosshairs"></i> <span>Detect My Location</span>
+            </button>
+            <span class="ml-status-tag"><i class="fa-solid fa-circle-check"></i> Deep Neural Net Ready</span>
+          </div>
+        </div>
+
+        <p class="module-desc">
+          Trained on 12,000+ Indian meteorological samples across elevations, monsoon troughs, and high passes.
+          Drive or scrub along the corridor to see how weather, temperatures, and road hazards transition from plains to peaks.
+        </p>
+
+        <!-- Route Weather Triggers & Controls Bar -->
+        <div class="simulator-controls-bar">
+          <div class="sim-ctrl-group">
+            <label><i class="fa-solid fa-calendar"></i> Travel Month:</label>
+            <select id="simMonthSelect" class="sim-select">
+              <option value="1">January (Winter Snow / Plains Fog)</option>
+              <option value="3">March (Pleasant Spring)</option>
+              <option value="5">May (Peak Summer Plains)</option>
+              <option value="7" selected>July (Monsoon / Ghat Rain)</option>
+              <option value="10">October (Golden Autumn)</option>
+              <option value="12">December (Early Winter Freeze)</option>
+            </select>
+          </div>
+
+          <div class="sim-ctrl-group">
+            <label><i class="fa-solid fa-clock"></i> Departure Time:</label>
+            <select id="simHourSelect" class="sim-select">
+              <option value="6" selected>06:00 AM (Dawn / Early Start)</option>
+              <option value="12">12:00 PM (Midday Sun)</option>
+              <option value="17">05:00 PM (Golden Sunset)</option>
+              <option value="22">10:00 PM (Night Drive / Cool)</option>
+            </select>
+          </div>
+
+          <div class="sim-ctrl-group">
+            <label><i class="fa-solid fa-gauge-high"></i> User Location Temp:</label>
+            <div class="user-temp-input-wrap">
+              <input type="number" id="userLiveTempInput" class="sim-num-input" value="30" min="-10" max="50">
+              <span class="temp-unit">°C</span>
+              <button id="applyUserTempBtn" class="mini-accent-btn" title="Recalibrate Route with Live User Temp">Apply</button>
+            </div>
+          </div>
+
+          <button id="playRouteBtn" class="play-route-btn">
+            <i class="fa-solid fa-play" id="playIcon"></i> <span>Drive Route</span>
+          </button>
+        </div>
+
+        <!-- Live Microclimate HUD along the road -->
+        <div class="route-hud-panel" id="routeHudPanel">
+          <div class="hud-main-checkpoint">
+            <span class="hud-sub" id="hudKmBadge">CHECKPOINT 01 / 08 • 0 KM</span>
+            <h4 class="hud-location-name" id="hudLocationName">Delhi Outskirts (Plains)</h4>
+            <p class="hud-advisory-text" id="hudAdvisoryText">Clear highway skies. Good road grip and standard driving speeds.</p>
+          </div>
+
+          <div class="hud-gauges-grid">
+            <div class="hud-gauge-card">
+              <span class="g-label">Predicted Temp</span>
+              <strong class="g-val temp-val" id="hudTempVal">28.5°C</strong>
+              <span class="g-sub" id="hudElevationVal">Elevation: 216m</span>
+            </div>
+
+            <div class="hud-gauge-card">
+              <span class="g-label">Microclimate</span>
+              <strong class="g-val cond-val" id="hudCondVal">☀️ Clear</strong>
+              <span class="g-sub" id="hudPrecipVal">Rain Chance: 12%</span>
+            </div>
+
+            <div class="hud-gauge-card">
+              <span class="g-label">Road Hazard Index</span>
+              <strong class="g-val hazard-val" id="hudHazardVal">0.12 (Safe)</strong>
+              <div class="hazard-bar-wrap">
+                <div class="hazard-bar-fill" id="hudHazardBar" style="width: 12%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Journey Scrubber -->
+        <div class="scrubber-track-container">
+          <div class="scrubber-header-row">
+            <span><i class="fa-solid fa-flag-checkered"></i> Origin (0 KM)</span>
+            <span id="scrubberPosLabel">Highway Progress: <strong>0% (0 KM)</strong></span>
+            <span><i class="fa-solid fa-mountain"></i> Destination (<span id="scrubberTotalKm">530 KM</span>)</span>
+          </div>
+          <div class="scrubber-slider-wrap">
+            <input type="range" id="routeScrubber" min="0" max="7" value="0" step="1" class="route-scrubber-slider">
+            <div class="scrubber-ticks-row" id="scrubberTicksRow">
+              <!-- Rendered checkpoints ticks -->
+            </div>
+          </div>
+        </div>
+
+        <!-- SVG Elevation & Weather Zone Profile -->
+        <div class="elevation-chart-container">
+          <div class="chart-header">
+            <span class="chart-title"><i class="fa-solid fa-chart-area"></i> Highway Elevation & Microclimate Zone Profile</span>
+            <span class="chart-stats" id="chartRangeStats">Min: 12°C • Max: 31°C • Max Hazard: 0.45</span>
+          </div>
+          <div class="svg-chart-wrap" id="elevationChartWrap">
+            <!-- Dynamic SVG Elevation Chart -->
+          </div>
+        </div>
+
+        <!-- Model Architecture Dropdown / Specs -->
+        <div class="ml-specs-strip">
+          <span class="specs-item"><i class="fa-solid fa-microchip"></i> <strong>Model:</strong> Multi-Task Deep Neural Net (MLP)</span>
+          <span class="specs-item"><i class="fa-solid fa-network-wired"></i> <strong>Layers:</strong> 8 &rarr; 64 &rarr; 32 &rarr; 16 &rarr; Multi-Head</span>
+          <span class="specs-item"><i class="fa-solid fa-bolt"></i> <strong>Latency:</strong> &lt; 1ms (Native NumPy Vectorized)</span>
+          <span class="specs-item"><i class="fa-solid fa-shield"></i> <strong>Privacy:</strong> 100% Local (No External LLMs / API Keys)</span>
+        </div>
+      </div>
+
+      <!-- Weather & Climate Dynamics Card -->
+      <div class="module-card weather-dynamics-card" id="weatherModule">
+        <div class="module-header">
+          <div>
+            <span class="module-kicker"><i class="fa-solid fa-temperature-half"></i> CLIMATE & REALITY CHECK</span>
+            <h3 class="module-title" id="weatherSeasonTitle">Monsoon Dynamics & Season Vibe</h3>
+          </div>
+          <div class="weather-temp-badge" id="weatherTempBadge">15°C - 24°C</div>
+        </div>
+
+        <div class="weather-grid">
+          <div class="weather-grid-item">
+            <div class="w-icon"><i class="fa-solid fa-droplet"></i></div>
+            <div class="w-info">
+              <span class="w-label">Rainfall / Snow</span>
+              <strong class="w-val" id="weatherRainVal">High & Misty</strong>
+            </div>
+          </div>
+
+          <div class="weather-grid-item">
+            <div class="w-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div class="w-info">
+              <span class="w-label">Road & Safety Advisories</span>
+              <ul class="advisory-list" id="weatherAdvisoriesList">
+                <!-- Advisories -->
+              </ul>
+            </div>
+          </div>
+
+          <div class="weather-grid-item">
+            <div class="w-icon"><i class="fa-solid fa-suitcase"></i></div>
+            <div class="w-info">
+              <span class="w-label">Desi Packing Essentials</span>
+              <div class="packing-chips" id="weatherPackingChips">
+                <!-- Packing chips -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tiered Travel Packages (Backpacker, Comfort, Royal Luxury) -->
+      <div class="module-card packages-module" id="packagesModule">
+        <div class="module-header">
+          <div>
+            <span class="module-kicker"><i class="fa-solid fa-indian-rupee-sign"></i> TRANSPARENT PRICING IN INR (₹)</span>
+            <h3 class="module-title">Select Your Travel Tier</h3>
+          </div>
+          <p class="module-desc">Toggle between tiers to see real calculated cost breakdowns for your duration and party size.</p>
+        </div>
+
+        <!-- 3-Tier Switcher Cards -->
+        <div class="packages-grid" id="packagesContainer">
+          <!-- Backpacker, Comfort, Luxury cards rendered dynamically -->
+        </div>
+
+        <!-- Active Package Breakdown Bar -->
+        <div class="package-breakdown-details" id="breakdownSection">
+          <div class="breakdown-header">
+            <h4>Itemized Cost Model for <span id="activeTierName" class="highlight-tier">Heritage Explorer</span></h4>
+            <div class="group-cost-badge">
+              <span>Group Total: <strong id="groupTotalCost">₹42,000</strong></span>
+            </div>
+          </div>
+          <div class="cost-bars-grid" id="costBarsGrid">
+            <!-- Cost breakdown bars -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Highway Route & Legendary Pitstops Timeline -->
+      <div class="module-card route-module" id="routeModule">
+        <div class="module-header">
+          <div>
+            <span class="module-kicker"><i class="fa-solid fa-route"></i> HIGHWAYS, TOLLS & DHABAS</span>
+            <h3 class="module-title">The Highway Corridor Timeline</h3>
+          </div>
+          <div class="route-metrics">
+            <span class="metric-pill"><i class="fa-solid fa-road"></i> <strong id="routeDistance">530 KM</strong></span>
+            <span class="metric-pill"><i class="fa-solid fa-clock"></i> <strong id="routeDuration">10.5 Hours</strong></span>
+            <span class="metric-pill"><i class="fa-solid fa-receipt"></i> <strong id="routeTolls">₹820 Tolls</strong></span>
+          </div>
+        </div>
+
+        <!-- Multi-Modal Transit Comparison -->
+        <div class="transit-comparison-container" id="transitComparison">
+          <h4 class="sub-heading"><i class="fa-solid fa-arrows-split-up-and-left"></i> Transit Mode Comparison</h4>
+          <div class="transit-cards-row" id="transitCardsRow">
+            <!-- Road, Vande Bharat, Flight -->
+          </div>
+        </div>
+
+        <!-- Pitstops Timeline -->
+        <div class="pitstops-timeline-wrap">
+          <h4 class="sub-heading"><i class="fa-solid fa-utensils"></i> Iconic Dhabas, Mountain Cafes & Pitstops on Route</h4>
+          <div class="pitstops-timeline" id="pitstopsTimeline">
+            <!-- Murthal, Cheetal Grand, River cafes -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Day-by-Day Itinerary -->
+      <div class="module-card itinerary-module" id="itineraryModule">
+        <div class="module-header">
+          <div>
+            <span class="module-kicker"><i class="fa-solid fa-calendar-check"></i> DAY-BY-DAY IMMERSION</span>
+            <h3 class="module-title">The Detailed Day-by-Day Chronicle</h3>
+          </div>
+          <div class="itinerary-actions">
+            <button id="printBtn" class="secondary-btn" title="Print or Save PDF">
+              <i class="fa-solid fa-print"></i> <span>Print Itinerary</span>
+            </button>
+            <button id="openAICustomizerBtn" class="primary-accent-btn">
+              <i class="fa-solid fa-sliders"></i> <span>Tweak With AI</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="itinerary-timeline" id="itineraryDaysContainer">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Handpicked Stays, Homestays & Regional Restaurants -->
+      <div class="module-card stays-food-module" id="staysFoodModule">
+        <div class="module-header">
+          <div>
+            <span class="module-kicker"><i class="fa-solid fa-hotel"></i> CURATED HOSPITALITY & FLAVORS</span>
+            <h3 class="module-title">Handpicked Stays & Authentic Diners</h3>
+          </div>
+          <!-- Filter tabs -->
+          <div class="stays-tabs">
+            <button class="stays-tab-btn active" data-tab="all">All Recommendations</button>
+            <button class="stays-tab-btn" data-tab="stays">🏨 Stays & Havelis</button>
+            <button class="stays-tab-btn" data-tab="food">🍛 Dhabas & Cafes</button>
+          </div>
+        </div>
+
+        <div class="cards-showcase-grid" id="staysAndFoodGrid">
+          <!-- Cards rendered dynamically -->
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Interactive AI Customizer Drawer / Modal -->
+  <div class="ai-drawer-overlay hidden" id="aiDrawerOverlay"></div>
+  <aside class="ai-customizer-drawer hidden" id="aiDrawer">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <span class="drawer-kicker"><i class="fa-solid fa-wand-magic-sparkles"></i> CONVERSATIONAL REFINEMENT</span>
+        <h3 class="drawer-title">Tweak Itinerary with AI</h3>
+      </div>
+      <button class="drawer-close-btn" id="closeDrawerBtn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="drawer-body">
+      <p class="drawer-explainer">
+        Tell the Indian Travel AI exactly what you'd like to adjust.
+        For example: <em>"Add 2 sunrise photography spots"</em>, <em>"Make it 100% elder-friendly with minimal stairs"</em>, or <em>"Only pure Jain food stops"</em>.
+      </p>
+
+      <!-- Quick prompts chips -->
+      <div class="quick-prompt-chips">
+        <button class="prompt-chip" data-prompt="Add photography sunrise viewpoints and hidden trails">📸 Photography Spots</button>
+        <button class="prompt-chip" data-prompt="Make this elder-friendly with minimal walking and gentle temple darshans">🧓 Elder Friendly</button>
+        <button class="prompt-chip" data-prompt="Ensure all stops have certified pure Jain food without onion or garlic">🪷 100% Jain Food</button>
+        <button class="prompt-chip" data-prompt="Add thrilling high-altitude adventure activities and offbeat camps">🧗 Adrenaline Boost</button>
+      </div>
+
+      <!-- Prompt Input -->
+      <div class="custom-prompt-input-wrap">
+        <textarea id="aiPromptInput" class="styled-textarea" rows="4" placeholder="Enter your custom request for this itinerary..."></textarea>
+      </div>
+
+      <button id="sendAICustomizeBtn" class="generate-btn w-full">
+        <span><i class="fa-solid fa-paper-plane"></i> Apply Customization</span>
+      </button>
+
+      <!-- AI Response Output -->
+      <div class="ai-custom-output hidden" id="aiCustomOutput">
+        <h4 class="output-heading"><i class="fa-solid fa-sparkles"></i> AI Tailored Adjustments:</h4>
+        <p class="custom-story-text" id="customStoryText"></p>
+        <ul class="custom-recs-list" id="customRecsList"></ul>
+        <div class="custom-adjustments-grid" id="customAdjustmentsGrid"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Gemini API Key Configuration Modal -->
+  <div class="modal-overlay hidden" id="apiKeyModal">
+    <div class="styled-modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-key"></i> Google Gemini API Settings</h3>
+        <button class="modal-close" id="closeApiKeyModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-text">
+          Safarnama includes an extensive <strong>built-in Indian Travel Knowledge Engine</strong> that works completely offline.
+          If you provide your Google Gemini API Key, the system will use <strong>Gemini 2.5 Flash</strong> to generate hyper-personalized stories, customs, and live conversational tweaks!
+        </p>
+        <div class="modal-input-group">
+          <label for="geminiKeyInput">Gemini API Key (Optional):</label>
+          <input type="password" id="geminiKeyInput" class="styled-input" placeholder="AIzaSy...">
+          <small class="modal-hint">Key is stored only in your local browser session and sent directly to your backend.</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="secondary-btn" id="clearApiKeyBtn">Clear Key</button>
+        <button class="primary-accent-btn" id="saveApiKeyBtn">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4 class="footer-title">SAFARNAMA <span class="brand-accent">सफ़रनामा</span></h4>
+        <p class="footer-desc">
+          Crafted for the soulful Indian wanderer. Highlighting the heritage, highways, dhabas, and sacred geometries of the subcontinent.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h5 class="footer-sub">POPULAR CORRIDORS</h5>
+        <ul class="footer-links">
+          <li><a href="#" class="footer-corridor-link" data-id="delhi-manali">Delhi &rarr; Manali Expressway</a></li>
+          <li><a href="#" class="footer-corridor-link" data-id="mumbai-goa-nh66">Mumbai &rarr; Goa Konkan Coast</a></li>
+          <li><a href="#" class="footer-corridor-link" data-id="bangalore-coorg-wayanad">Bengaluru &rarr; Coorg Coffee Hills</a></li>
+          <li><a href="#" class="footer-corridor-link" data-id="varanasi-ayodhya-prayagraj">Kashi &rarr; Ayodhya Sacred Belt</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5 class="footer-sub">INFRASTRUCTURE READY</h5>
+        <div class="infra-pills">
+          <span class="infra-pill"><i class="fa-solid fa-train"></i> Vande Bharat Express</span>
+          <span class="infra-pill"><i class="fa-solid fa-road"></i> Indian National Highways</span>
+          <span class="infra-pill"><i class="fa-solid fa-cloud-rain"></i> Dynamic Weather Canvas</span>
+          <span class="infra-pill"><i class="fa-solid fa-brain"></i> Gemini 2.5 AI Engine</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Safarnama. Designed strictly for the Indian travel experience.</p>
+    </div>
+  </footer>
+
+  <!-- Application Script -->
+  <script src="/static/app.js"></script>
 </body>
 </html>
